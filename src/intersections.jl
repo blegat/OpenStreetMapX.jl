@@ -64,7 +64,7 @@ Find Segments of Highways ###
 """
 function find_segments(nodes::Dict{Int,T}, highways::Vector{OpenStreetMapX.Way}, intersections::Dict{Int,Set{Int}}) where T<:Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF}
     segments = OpenStreetMapX.Segment[]
-    intersect = Set(keys(intersections))
+    intersect = keys(intersections)
     for highway in highways
         firstNode = 1
         for j = 2:length(highway.nodes)

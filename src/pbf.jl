@@ -82,10 +82,12 @@ function process_element(osm, pbf_way::OSMPBF.Way, table, lat_offset, lon_offset
     refs = pbf_way.refs
     cumsum!(refs, refs)
     way.nodes = refs
-    keys = pbf_way.keys
-    vals = pbf_way.vals
-    for i in eachindex(keys)
-        tag(osm, way, table, keys[i], vals[i])
+    if isdefined(pbf_way, :keys)
+        keys = pbf_way.keys
+        vals = pbf_way.vals
+        for i in eachindex(keys)
+            tag(osm, way, table, keys[i], vals[i])
+        end
     end
     push!(osm.ways, way)
     return
@@ -102,10 +104,12 @@ function process_element(osm, pbf_relation::OSMPBF.Relation, table, lat_offset, 
             "ref" => string(memids[i]),
         ))
     end
-    keys = pbf_relation.keys
-    vals = pbf_relation.vals
-    for i in eachindex(keys)
-        tag(osm, relation, table, keys[i], vals[i])
+    if isdefined(pbf_relation, :keys)
+        keys = pbf_relation.keys
+        vals = pbf_relation.vals
+        for i in eachindex(keys)
+            tag(osm, relation, table, keys[i], vals[i])
+        end
     end
     push!(osm.relations, relation)
     return

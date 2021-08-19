@@ -226,10 +226,10 @@ mutable struct Way <: SimpleProtoType
         return new()
     end
 end # mutable struct Way
-function set_defaults!(obj::Way)
-    obj.keys = UInt32[]
-    obj.vals = UInt32[]
-end
+#function set_defaults!(obj::Way)
+#    obj.keys = UInt32[]
+#    obj.vals = UInt32[]
+#end
 const __meta_Way = Ref{ProtoMeta}()
 function meta(::Type{Way})
     ProtoBuf.metalock() do
