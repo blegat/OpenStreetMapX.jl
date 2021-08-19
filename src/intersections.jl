@@ -27,7 +27,7 @@ reverseway(w::OpenStreetMapX.Way) = (get(w.tags,"oneway", "") == "-1")
 """
 Compute the distance of a route for some `nodes` data
 """
-function distance(nodes::Dict{Int,T}, route::Vector{Int}) where T<:(Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF})
+function distance(nodes::Dict{Int,T}, route::AbstractVector{Int}) where T<:(Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF})
     if length(route) == 0
         return Inf
     end
@@ -39,20 +39,13 @@ Find Intersections of Highways ###
 """
 function find_intersections(highways::Vector{OpenStreetMapX.Way})
     seen = Set{Int}()
-    intersections = Dict{Int,Set{Int}}()
+    intersections = Set{Int}()
     for highway in highways
         for i = 1:length(highway.nodes)
             if i == 1 || i == length(highway.nodes) || (highway.nodes[i] in seen)
-                get!(Set{Int}, intersections, highway.nodes[i])
+                push!(intersections, highway.nodes[i])
             else
                 push!(seen, highway.nodes[i])
-            end
-        end
-    end
-    for highway in highways
-        for i = 1:length(highway.nodes)
-            if i == 1 || i == length(highway.nodes) || haskey(intersections, highway.nodes[i])
-                push!(intersections[highway.nodes[i]], highway.id)
             end
         end
     end
@@ -85,4 +78,31 @@ function find_segments(nodes::Dict{Int,T}, highways::Vector{OpenStreetMapX.Way},
         end
     end
     return segments
+end
+
+function get_edges_distances(nodes::Dict{Int,T}, highways::Vector{OpenStreetMapX.Way}, intersections::Set{Int}) where T<:Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF}
+    e = Tuple{Int,Int}[]
+    class = Int[]
+    weight_vals = Float64[]
+    function add_segment(way, path)
+        push!(e, (first(path), last(path)))
+        push!(class, classify_roadway(way))
+        push!(weight_vals, OpenStreetMapX.distance(nodes, path))
+    end
+    for highway in highways
+        firstNode = 1
+        for j = 2:length(highway.nodes)
+            if highway.nodes[firstNode] != highway.nodes[j] && (highway.nodes[j] in intersections || j == length(highway.nodes))
+                rev = reverseway(highway)
+                if !rev
+                    add_segment(highway, view(highway.nodes, firstNode:j))
+                end
+                if rev || !oneway(highway)
+                    add_segment(highway, view(highway.nodes, j:-1:firstNode))
+                end
+				firstNode = j
+            end
+        end
+    end
+    return e, class, weight_vals
 end

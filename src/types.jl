@@ -288,8 +288,7 @@ This is the main data structure used fot map data analytics.
 mutable struct MapData
     bounds::Bounds{LLA}
     nodes::Dict{Int,ENU}
-    roadways::Array{Way,1}
-    intersections::Dict{Int,Set{Int}}
+    roadways::Vector{Way}
     # Transporation network graph data and helpers to increase routing speed
     g::LightGraphs.SimpleGraphs.SimpleDiGraph{Int64} # Graph object
     v::Dict{Int,Int}                             # (node id) => (graph vertex)

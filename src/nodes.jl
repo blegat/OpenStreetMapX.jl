@@ -103,7 +103,7 @@ end
 """
 Find vertices of a routing network within range of a location
 """
-nodes_within_range(nodes::Dict{Int,T},loc::T, m::OpenStreetMapX.MapData, range::Float64 = Inf) where T <:(Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF}) = OpenStreetMapX.nodes_within_range(nodes,loc,collect(keys(m.v)),range)
+nodes_within_range(nodes::Dict{Int,T},loc::T, m::OpenStreetMapX.MapData, range::Float64 = Inf) where T <:(Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF}) = OpenStreetMapX.nodes_within_range(nodes,loc,keys(m.v),range)
 
 """
 Compute Centroid of List of Nodes

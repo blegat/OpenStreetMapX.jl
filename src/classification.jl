@@ -9,7 +9,7 @@ end
 
 getlanes(w::OpenStreetMapX.Way) = parse(Int, w.tags["lanes"])
 
-visible(obj::T) where T <: OSMElement = (get(obj.tags, "visible", "") != "false") 
+visible(obj::T) where T <: OSMElement = (get(obj.tags, "visible", "") != "false")
 
 services(w::OpenStreetMapX.Way) = (get(w.tags,"highway", "") == "services")
 
@@ -25,9 +25,18 @@ filter_highways(ways::Vector{OpenStreetMapX.Way}) = [way for way in ways if Open
 ### Filter and Classify Highways for Cars ###
 ##############################################
 
+function valid_roadway(way, levels::Set{Int}, classes::Dict{String, Int} = OpenStreetMapX.ROAD_CLASSES)
+    highway = get(way.tags, "highway", "")
+    if isempty(highway) || highway == "services" || !haskey(classes, highway)
+        return false
+    end
+    return OpenStreetMapX.visible(way) && classes[highway] in levels
+end
+
 filter_roadways(ways::Vector{OpenStreetMapX.Way}, classes::Dict{String, Int} = OpenStreetMapX.ROAD_CLASSES; levels::Set{Int} = Set(1:length(OpenStreetMapX.ROAD_CLASSES))) = [way for way in ways if way.tags["highway"] in keys(classes) && classes[way.tags["highway"]] in levels]
 
-classify_roadways(ways::Vector{OpenStreetMapX.Way}, classes::Dict{String, Int} = OpenStreetMapX.ROAD_CLASSES) = Dict{Int,Int}(way.id => classes[way.tags["highway"]] for  way in ways if haskey(classes, way.tags["highway"]))
+classify_roadway(way::Way, classes::Dict{String, Int} = OpenStreetMapX.ROAD_CLASSES) = classes[way.tags["highway"]]
+classify_roadways(ways::Vector{OpenStreetMapX.Way}, classes::Dict{String, Int} = OpenStreetMapX.ROAD_CLASSES) = Dict{Int,Int}(way.id => classify_roadway(way, classes) for way in ways if haskey(classes, way.tags["highway"]))
 
 ####################################################
 ### Filter and Classify Highways for Pedestrians ###
@@ -46,16 +55,16 @@ function filter_walkways(ways::Vector{OpenStreetMapX.Way},classes::Dict{String, 
         end
     end
     return walkways
-end 
+end
 
 function classify_walkways(ways::Vector{OpenStreetMapX.Way},classes::Dict{String, Int} = OpenStreetMapX.PED_CLASSES)
     walkways = Dict{Int,Int}()
     for way in ways
         sidewalk = get(way.tags, "sidewalk", "")
         if sidewalk != "no"
-            if haskey(classes, "sidewalk:$(sidewalk)") 
+            if haskey(classes, "sidewalk:$(sidewalk)")
                 walkways[way.id] = classes["sidewalk:$(sidewalk)"]
-            elseif haskey(classes, way.tags["highway"]) 
+            elseif haskey(classes, way.tags["highway"])
                 walkways[way.id] = classes[way.tags["highway"]]
             end
         end
@@ -101,11 +110,11 @@ function classify_cycleways(ways::Vector{OpenStreetMapX.Way}, classes::Dict{Stri
         bikeclass = "bicycle:$(bicycle)"
 
         if bicycle != "no"
-            if haskey(classes, cycleclass) 
+            if haskey(classes, cycleclass)
                 cycleways[way.id] = classes[cycleclass]
-            elseif haskey(classes, bikeclass) 
+            elseif haskey(classes, bikeclass)
                 cycleways[way.id] = classes[bikeclass]
-            elseif haskey(classes, highway) 
+            elseif haskey(classes, highway)
                 cycleways[way.id] = classes[highway]
             end
         end
@@ -142,5 +151,5 @@ function filter_graph_features(features::Dict{Int,Tuple{String,String}}, graphFe
         error("class not in classes")
     end
     level = classes[class]
-    Dict{Int,Int}(key => node for (key,node) in graphFeatures if classes[features[key][1]] == level) 
+    Dict{Int,Int}(key => node for (key,node) in graphFeatures if classes[features[key][1]] == level)
 end

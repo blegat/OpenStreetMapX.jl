@@ -116,7 +116,7 @@ end
 """
 Extract nodes ID's from route object
 """
-function get_route_nodes(m::MapData, route_indices::Array{Int64,1})
+function get_route_nodes(m::MapData, route_indices::Vector{Int})
     route_nodes = Array{Int}(undef,length(route_indices))
     v = Dict{Int,Int}(reverse.(collect(m.v)))
     for n = 1:length(route_nodes)
