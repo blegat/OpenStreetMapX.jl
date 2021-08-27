@@ -81,13 +81,25 @@ function find_segments(nodes::Dict{Int,T}, highways::Vector{OpenStreetMapX.Way},
 end
 
 function get_edges_distances(nodes::Dict{Int,T}, highways::Vector{OpenStreetMapX.Way}, intersections::Set{Int}) where T<:Union{OpenStreetMapX.ENU,OpenStreetMapX.ECEF}
+    back = Dict{Tuple{Int,Int},Int}()
     e = Tuple{Int,Int}[]
     class = Int[]
     weight_vals = Float64[]
     function add_segment(way, path)
-        push!(e, (first(path), last(path)))
-        push!(class, classify_roadway(way))
-        push!(weight_vals, OpenStreetMapX.distance(nodes, path))
+        edge = (first(path), last(path))
+        weight = OpenStreetMapX.distance(nodes, path)
+        if haskey(back, edge)
+            i = back[edge]
+            if weight < weight_vals[i]
+                class[i] = classify_roadway(way)
+                weight_vals[i] = weight
+            end
+        else
+            push!(e, edge)
+            push!(class, classify_roadway(way))
+            push!(weight_vals, weight)
+            back[edge] = length(e)
+        end
     end
     for highway in highways
         firstNode = 1
