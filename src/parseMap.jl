@@ -191,6 +191,6 @@ function MapData(mapdata::OSMData, road_levels::Set{Int}, only_intersections::Bo
         end
 		return MapData(mapdata, road_levels, only_intersections, remove_nodes=remove_nodes)
 	else
-		return MapData(mapdata.bounds,nodes,roadways,g,v,n,e,w,class)
+		return MapData(mapdata.bounds,nodes,roadways,Dict{Int,Set{Int}}(),g,v,n,e,w,class)
 	end
 end
