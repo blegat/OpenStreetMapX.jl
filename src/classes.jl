@@ -12,21 +12,22 @@ Ordered by typical significance
 """
 const ROAD_CLASSES = Dict(
     "motorway" => 1,
+    "motorway_link" => 1,
     "trunk" => 2,
+    "trunk_link" => 2,
     "primary" => 3,
+    "primary_link" => 3,
     "secondary" => 4,
+    "secondary_link" => 4,
     "tertiary" => 5,
+    "tertiary_link" => 5,
     "unclassified" => 6,
     "residential" => 6,
+    "road" => 6,
     "service" => 7,
-    "motorway_link" => 1,
-    "trunk_link" => 2,
-    "primary_link" => 3,
-    "secondary_link" => 4,
-    "tertiary_link" => 5,
     "living_street" => 8,
     "pedestrian" => 8,
-    "road" => 6)
+)
 
 """
 	PED_CLASSES
@@ -61,7 +62,7 @@ const PED_CLASSES = Dict(
 
 """
 	CYCLE_CLASSES
-	
+
 Cycle classes
 	- Level 1: Bike paths
 	- Level 2: Separated bike lanes (tracks)
